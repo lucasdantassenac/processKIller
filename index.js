@@ -1,13 +1,30 @@
-const ps = require('ps-node');
-const event = require('events')
-let processCommand = "WindowsCalculator"
-let status = {
-    acive: false
+const 
+ps = require('ps-node'),
+events = require('events')
 
+
+let 
+processCommand = "WindowsCalculator",
+emitter = new events.EventEmitter(),
+time = 0,
+status = {
+    acive: false,               
+    opened: false,
 }
+
 // event.on("finishProcess", () => {
 //     ps.kill('Calculadora')
 //     });
+
+let closer = (pid) => {
+    try {
+        
+        console.log('finalizado')
+        ps.kill(pid)
+     } catch (error) {
+         console.log(error)
+     }
+}
 
 let checkerF = () => {
     ps.lookup({ command: processCommand }, function(err, resultList ) {
@@ -18,18 +35,19 @@ let checkerF = () => {
         var process = resultList[ 0 ];
     
         if( process ){
-            
-            console.log( process)
-            ps.kill(process.pid)
-            console.log('executou')
-            clearInterval(checker)
+            status.opened = true
+            status.active = true
+            time++
+            console.log('aberto')
+            if(time >= 5){
+                closer(process.pid)
+                
+            }
+        } else{
+            status.active = false
+            console.log('fechado')
         }
-
-        // else {
-        //     console.log( 'No such process found!' );
-        // }
     });
-    
 }
 
 let checker = setInterval(checkerF, 5000)
