@@ -3,7 +3,7 @@ ps = require('ps-node'),
 events = require('events'),
 fs = require('fs')
 
-fs.existsSync('./time.txt')
+
 let 
 processCommand = "WindowsCalculator", //processName
 emitter = new events.EventEmitter(),
@@ -15,6 +15,12 @@ status = {
     opened: false,
 }
 
+if(fs.existsSync('./time.txt')){
+    fs.readFile('./time.txt', 'utf8', (err, data) => {
+        if(err) return err
+        time = data
+    })
+}
 //function that close thhe process
 let closer = (pid) => {
     try {
