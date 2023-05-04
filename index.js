@@ -8,7 +8,7 @@ let
 processCommand = "WindowsCalculator", //processName
 emitter = new events.EventEmitter(),
 time = 0, //initialTime
-timeToClose = 5, //timeLimit
+timeToClose = 10, //timeLimit
 //Status of process
 status = {
     active: false,               
@@ -18,7 +18,7 @@ status = {
 if(fs.existsSync('./time.txt')){
     fs.readFile('./time.txt', 'utf8', (err, data) => {
         if(err) return err
-        time = data
+        time = Number(data)
     })
 }
 //function that close thhe process
@@ -47,10 +47,12 @@ let checkerF = (processName, timeLimit) => {
             status.active = true
 
             time++
-
+            console.log(time)
             console.log('aberto')
-            if(time / 5 === 0){
-                fs.writeFile("time.txt", time)
+            if((time%5) === 0){
+                fs.writeFile("./time.txt", String(time), err => {
+                    if(err) console.log(err)
+                })
             }
             if(time >= timeLimit){
                 closer(process.pid)
