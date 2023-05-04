@@ -1,47 +1,53 @@
 const 
 ps = require('ps-node'),
-events = require('events')
+events = require('events'),
+fs = require('fs')
 
-
+fs.existsSync('./time.txt')
 let 
-processCommand = "WindowsCalculator",
+processCommand = "WindowsCalculator", //processName
 emitter = new events.EventEmitter(),
-time = 0,
+time = 0, //initialTime
+timeToClose = 5, //timeLimit
+//Status of process
 status = {
-    acive: false,               
+    active: false,               
     opened: false,
 }
 
-// event.on("finishProcess", () => {
-//     ps.kill('Calculadora')
-//     });
-
+//function that close thhe process
 let closer = (pid) => {
     try {
-        
         console.log('finalizado')
         ps.kill(pid)
      } catch (error) {
-         console.log(error)
+        console.log(error)
      }
 }
 
-let checkerF = () => {
-    ps.lookup({ command: processCommand }, function(err, resultList ) {
+//check if process exist and kill him after the timeLimit
+let checkerF = (processName, timeLimit) => {
+    //search for project
+    ps.lookup({ command: processName }, function(err, resultList ) {
+        
         if (err) {
             throw new Error( err );
         }
     
         var process = resultList[ 0 ];
-    
+        //ifexists
         if( process ){
             status.opened = true
             status.active = true
+
             time++
+
             console.log('aberto')
-            if(time >= 5){
+            if(time / 5 === 0){
+                fs.writeFile("time.txt", time)
+            }
+            if(time >= timeLimit){
                 closer(process.pid)
-                
             }
         } else{
             status.active = false
@@ -50,4 +56,6 @@ let checkerF = () => {
     });
 }
 
-let checker = setInterval(checkerF, 5000)
+//check the process every second
+let checker = setInterval(checkerF, 1000, processCommand, timeToClose)
+
