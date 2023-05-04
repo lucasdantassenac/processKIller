@@ -1,22 +1,22 @@
 const 
 ps = require('ps-node'),
-events = require('events'),
 fs = require('fs')
 
 
 let 
-processCommand = "WindowsCalculator", //processName
-emitter = new events.EventEmitter(),
+processCommands = ["WindowsCalculator"], //processName
 time = 0, //initialTime
 timeToClose = 10, //timeLimit
-actualDate = new Date().getDate(),
+currentDate = new Date().getDate(),
 lastDate = null,
+i = 0,
 //Status of process
 status = {
     active: false,               
     opened: false,
 }
 
+//see if lastdate file's exists. if exist, lastdate recieve the archive content
 if(fs.existsSync('./lastDate.txt')) {
     fs.readFile('./lastDate.txt', 'utf8', (err, data) => {
         if(err) return err
@@ -24,12 +24,13 @@ if(fs.existsSync('./lastDate.txt')) {
     })
 }
 
-if(lastDate != actualDate){
+//compare system date and file date. if not match, time is 0
+if(lastDate != currentDate){
     fs.writeFile("./time.txt", String(time), err => {
         if(err) console.log(err)
     })
 }
-
+//if time file's exist, time will recive file's content
 if(fs.existsSync('./time.txt')){
     fs.readFile('./time.txt', 'utf8', (err, data) => {
         if(err) return err
@@ -37,18 +38,17 @@ if(fs.existsSync('./time.txt')){
     })
 }
 
-
 //function that close thhe process
 let closer = (pid) => {
     try {
         console.log('finalizado')
+        console.log("data atual:"+currentDate)
+        console.log("ultima data:"+lastDate)
         ps.kill(pid)
      } catch (error) {
         console.log(error)
      }
-     console.log("data atual:"+actualDate)
-     console.log("ultima data:"+lastDate)
-     fs.writeFile("./lastDate.txt", String(actualDate), err => {
+     fs.writeFile("./lastDate.txt", String(currentDate), err => {
         if(err) console.log(err)
     })
 }
@@ -69,14 +69,15 @@ let checkerF = (processName, timeLimit) => {
             status.active = true
 
             time++
-            console.log(time)
+
             console.log('aberto')
+            
             if((time%5) === 0){
                 fs.writeFile("./time.txt", String(time), err => {
                     if(err) console.log(err)
                 })
             }
-            if(time >= timeLimit || lastDate == actualDate){
+            if(time >= timeLimit || lastDate == currentDate){
                 closer(process.pid)
             }
         } else{
@@ -86,6 +87,10 @@ let checkerF = (processName, timeLimit) => {
     });
 }
 
-//check the process every second
-let checker = setInterval(checkerF, 1000, processCommand, timeToClose)
+
+
+processCommands.forEach(processCommand => {
+    //check the process every second
+    let checker = setInterval(checkerF, 1000, processCommand, timeToClose)
+})
 
