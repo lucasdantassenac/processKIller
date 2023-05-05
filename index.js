@@ -4,7 +4,7 @@ fs = require('fs')
 
 
 let 
-processCommands = ["WindowsCalculator", "notepad"], //processNames
+processCommands = fs.readFileSync('programs.txt').toString().replace("\r", "").split("\n"), //processNames
 time = 0, //initialTime
 timeToClose = 10, //timeLimit
 currentDate = new Date().getDate(),
@@ -15,7 +15,6 @@ status = {
     active: false,               
     opened: false,
 }
-
 //see if lastdate file's exists. if exist, lastdate recieve the archive content
 if(fs.existsSync('./lastDate.txt')) {
     fs.readFile('./lastDate.txt', 'utf8', (err, data) => {
