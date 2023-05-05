@@ -4,7 +4,7 @@ fs = require('fs')
 
 
 let 
-processCommands = ["WindowsCalculator"], //processName
+processCommands = ["WindowsCalculator", "notepad"], //processNames
 time = 0, //initialTime
 timeToClose = 10, //timeLimit
 currentDate = new Date().getDate(),
@@ -71,7 +71,7 @@ let checkerF = (processName, timeLimit) => {
             time++
 
             console.log('aberto')
-            
+
             if((time%5) === 0){
                 fs.writeFile("./time.txt", String(time), err => {
                     if(err) console.log(err)
